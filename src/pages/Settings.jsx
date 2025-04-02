@@ -95,13 +95,10 @@ export default function Settings() {
   return (
     <div className="flex-1 p-6 text-gray-900 dark:text-white overflow-y-auto h-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-[clamp(1.25rem,3vw,3vh)] font-bold tracking-wide uppercase relative pb-2 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-[2px] after:bg-[#6B5B95]">
-          Settings
-        </h2>
         <button
           onClick={handleSave}
           disabled={!isDirty}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white shadow-md transition-all duration-300 ${
+          className={`ml-auto flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-white shadow-md transition-all duration-300 ${
             isDirty ? 'bg-[#6B5B95] hover:bg-[#584A7A] hover:scale-105' : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
@@ -157,7 +154,6 @@ export default function Settings() {
           onChange={(e) => handleSettingChange(setSessionEndSound, e.target.value)}
           className="w-full p-2 bg-white dark:bg-[rgb(50,50,50)] rounded-lg border-2 border-gray-300 dark:border-[rgb(50,50,50)] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#6B5B95] text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md"
         >
-          <option value="default">Default</option>
           <option value="beep">Beep</option>
           <option value="chime">Chime</option>
           <option value="none">None</option>

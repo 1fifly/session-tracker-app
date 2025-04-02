@@ -11,7 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   importSessions: () => ipcRenderer.invoke('import-sessions'),
-  exportSessions: () => ipcRenderer.invoke('export-sessions')
+  exportSessions: () => ipcRenderer.invoke('export-sessions'),
+  playSessionEndSound: (sessionEndSound) => ipcRenderer.send('play-session-end-sound', sessionEndSound),
 });
 
 contextBridge.exposeInMainWorld('process', {

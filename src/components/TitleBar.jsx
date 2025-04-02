@@ -9,7 +9,7 @@ export default function TitleBar() {
 
   return (
     <div
-      className="w-full h-8 flex items-center justify-between bg-white dark:bg-[rgb(40,40,40)] text-gray-900 dark:text-white px-3 z-50"
+      className="w-full h-8 flex items-center justify-between bg-white dark:bg-[rgb(40,40,40)] text-gray-900 dark:text-white px-3 z-[51]"
       style={{ WebkitAppRegion: 'drag' }}
     >
       <div className="flex items-center gap-2">

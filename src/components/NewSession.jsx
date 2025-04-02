@@ -85,12 +85,9 @@ export default function NewSession() {
     setSessionData(newSession);
     setShowEndConfirmation(true);
 
+
     if (sessionEndRule === 'timer' && sessionEndSound !== 'none') {
-      const audio = new Audio(
-        sessionEndSound === 'default' ? './default.mp3' :
-        sessionEndSound === 'beep' ? './beep.mp3' :
-        './chime.mp3'
-      );
+      const audio = new Audio('');
       audio.play();
     }
 
@@ -150,7 +147,7 @@ export default function NewSession() {
     const value = parseInt(e.target.value) || 0;
     setTimeLimit({
       ...timeLimit,
-      [field]: field === 'hours' ? Math.max(0, value) : Math.max(0, Math.min(59, value))
+      [field]: field === 'hours' ? Math.max(23, value) : Math.max(0, Math.min(59, value))
     });
   };
 
@@ -360,7 +357,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.hours}
                 onChange={handleTimeLimitChange('hours')}
-                className="w-16 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
                 min="0"
               />
               <span className="absolute left-1/2 -translate-x-1/2 bottom-1 text-xs text-gray-500">HR</span>
@@ -370,7 +367,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.minutes}
                 onChange={handleTimeLimitChange('minutes')}
-                className="w-16 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
                 min="0"
                 max="59"
               />
@@ -381,7 +378,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.seconds}
                 onChange={handleTimeLimitChange('seconds')}
-                className="w-16 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
                 min="0"
                 max="59"
               />

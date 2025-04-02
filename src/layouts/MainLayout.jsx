@@ -6,7 +6,7 @@ import TitleBar from '../components/TitleBar.jsx';
 
 export default function MainLayout() {
   return (
-    <div className='flex flex-col h-screen'>
+    <div className='flex flex-col h-screen overflow-hidden'>
         <TitleBar />
         <Header/>
         <Outlet/>
