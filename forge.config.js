@@ -11,8 +11,9 @@ module.exports = {
   },
   makers: [
     { name: '@electron-forge/maker-squirrel', config: {
-      iconUrl: 'https://raw.githubusercontent.com/1fifly/session-tracker-app/refs/heads/main/src/images/logo.ico?token=GHSAT0AAAAAADBPHPIFOLTBJ4NAPQCHMHUKZ7NRVFA',
-      setupIcon: './src/images/logo.ico'
+      iconUrl: 'https://raw.githubusercontent.com/1fifly/session-tracker-app/refs/heads/main/src/images/logo.ico?token=GHSAT0AAAAAADBPHPIEWMH3Y4TJPGPCNACAZ7NXEPQ',
+      setupIcon: './src/images/logo.ico',
+      name: 'Session Tracker',
     } },
     { name: '@electron-forge/maker-zip', platforms: ['darwin'] },
     { name: '@electron-forge/maker-deb', config: {} },

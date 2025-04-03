@@ -23,7 +23,6 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS settings (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     notifications INTEGER,
-    sessionEndSound TEXT,
     weeklyGoal INTEGER,
     defaultCategory TEXT,
     defaultSessionEndRule TEXT
@@ -111,7 +110,6 @@ function saveSettings(settings) {
   const stmt = db.prepare(`
     UPDATE settings SET 
       notifications = ?, 
-      sessionEndSound = ?, 
       weeklyGoal = ?, 
       defaultCategory = ?, 
       defaultSessionEndRule = ? 
@@ -119,7 +117,6 @@ function saveSettings(settings) {
   `);
   stmt.run(
     settings.notifications ? 1 : 0,
-    settings.sessionEndSound,
     settings.weeklyGoal,
     settings.defaultCategory,
     settings.defaultSessionEndRule
@@ -131,7 +128,6 @@ function loadSettings() {
   const row = stmt.get();
   return {
     notifications: row.notifications === 1,
-    sessionEndSound: row.sessionEndSound,
     weeklyGoal: row.weeklyGoal,
     defaultCategory: row.defaultCategory,
     defaultSessionEndRule: row.defaultSessionEndRule

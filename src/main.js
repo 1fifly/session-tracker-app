@@ -7,8 +7,33 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+let splashWindow;
+let mainWindow;
+
+const createSplashWindow = () => {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 600,
+    frame: false,
+    alwaysOnTop: true,
+    transparent: true,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+    icon: './src/images/logo.png',
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+
+  splashWindow.on('closed', () => {
+    splashWindow = null;
+  });
+};
+
+const createMainWindow = () => {
+  mainWindow = new BrowserWindow({
     width: 950,
     height: 550,
     minWidth: 950,
@@ -18,12 +43,20 @@ const createWindow = () => {
     },
     frame: false,
     autoHideMenuBar: true,
-    icon: './src/images/logo',
+    icon: './src/images/logo.png',
+    show: false,
   });
 
   Menu.setApplicationMenu(null);
-  
+
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  mainWindow.once('ready-to-show', () => {
+    if (splashWindow) {
+      splashWindow.close();
+    }
+    mainWindow.show();
+  });
 
   ipcMain.on('minimize-window', () => mainWindow.minimize());
   ipcMain.on('maximize-window', () => {
@@ -35,6 +68,87 @@ const createWindow = () => {
   });
   ipcMain.on('close-window', () => mainWindow.close());
 };
+
+const checkForUpdatesFake = () => {
+  return new Promise((resolve) => {
+    splashWindow.webContents.send('update-status', 'Checking for updates');
+    setTimeout(() => {
+      const needsUpdate = Math.random() > 0.5;
+      if (needsUpdate) {
+        splashWindow.webContents.send('update-status', 'Updating');
+        setTimeout(() => {
+          splashWindow.webContents.send('update-status', 'Starting');
+          resolve();
+        }, 2000);
+      } else {
+        splashWindow.webContents.send('update-status', 'Starting');
+        setTimeout(resolve, 1000);
+      }
+    }, 1500);
+  });
+};
+
+// // GitHub-based update check (commented out for now)
+// const checkForUpdatesGitHub = () => {
+//   const { autoUpdater } = require('electron-updater');
+//   autoUpdater.setFeedURL({
+//     provider: 'github',
+//     owner: 'YOUR_GITHUB_USERNAME',
+//     repo: 'YOUR_REPOSITORY_NAME',
+//   });
+
+//   return new Promise((resolve, reject) => {
+//     autoUpdater.on('checking-for-update', () => {
+//       splashWindow.webContents.send('update-status', 'Checking for updates');
+//     });
+//     autoUpdater.on('update-available', () => {
+//       splashWindow.webContents.send('update-status', 'Updating');
+//     });
+//     autoUpdater.on('update-downloaded', () => {
+//       splashWindow.webContents.send('update-status', 'Starting Session Tracker');
+//       autoUpdater.quitAndInstall();
+//       resolve();
+//     });
+//     autoUpdater.on('update-not-available', () => {
+//       splashWindow.webContents.send('update-status', 'Starting Session Tracker');
+//       setTimeout(resolve, 1000);
+//     });
+//     autoUpdater.on('error', (err) => {
+//       splashWindow.webContents.send('update-status', `Error: ${err.message}`);
+//       setTimeout(reject, 2000);
+//     });
+//     autoUpdater.checkForUpdates();
+//   });
+// };
+
+app.whenReady().then(async () => {
+  createSplashWindow();
+
+  try {
+    await checkForUpdatesFake();
+    // await checkForUpdatesGitHub();
+
+    createMainWindow();
+  } catch (error) {
+    console.error('Update check failed:', error);
+    if (splashWindow) {
+      splashWindow.close();
+    }
+    createMainWindow();
+  }
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow();
+    }
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
 
 ipcMain.handle('save-session', async (event, sessionData) => {
   try {
@@ -123,20 +237,5 @@ ipcMain.handle('export-sessions', async () => {
   } catch (error) {
     console.error('Error exporting sessions:', error);
     return { success: false };
-  }
-});
-
-app.whenReady().then(() => {
-  createWindow();
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
   }
 });

@@ -3,7 +3,6 @@ import { FaFileImport, FaFileExport, FaBell, FaVolumeUp, FaClock, FaSave, FaFold
 
 export default function Settings() {
   const [notifications, setNotifications] = useState(true);
-  const [sessionEndSound, setSessionEndSound] = useState('default');
   const [weeklyGoal, setWeeklyGoal] = useState(20);
   const [defaultCategory, setDefaultCategory] = useState('');
   const [defaultSessionEndRule, setDefaultSessionEndRule] = useState('manual');
@@ -17,13 +16,11 @@ export default function Settings() {
   useEffect(() => {
     window.electronAPI.loadSettings().then(settings => {
       setNotifications(settings.notifications ?? true);
-      setSessionEndSound(settings.sessionEndSound ?? 'default');
       setWeeklyGoal(settings.weeklyGoal ?? 20);
       setDefaultCategory(settings.defaultCategory ?? '');
       setDefaultSessionEndRule(settings.defaultSessionEndRule ?? 'manual');
       setOriginalSettings({
         notifications: settings.notifications ?? true,
-        sessionEndSound: settings.sessionEndSound ?? 'default',
         weeklyGoal: settings.weeklyGoal ?? 20,
         defaultCategory: settings.defaultCategory ?? '',
         defaultSessionEndRule: settings.defaultSessionEndRule ?? 'manual',
@@ -39,14 +36,12 @@ export default function Settings() {
   const handleSave = () => {
     window.electronAPI.saveSettings({
       notifications,
-      sessionEndSound,
       weeklyGoal,
       defaultCategory,
       defaultSessionEndRule
     }).then(() => {
       setOriginalSettings({
         notifications,
-        sessionEndSound,
         weeklyGoal,
         defaultCategory,
         defaultSessionEndRule
@@ -63,13 +58,11 @@ export default function Settings() {
   const handleResetToDefault = () => {
     const defaultSettings = {
       notifications: true,
-      sessionEndSound: 'default',
       weeklyGoal: 20,
       defaultCategory: '',
       defaultSessionEndRule: 'manual'
     };
     setNotifications(defaultSettings.notifications);
-    setSessionEndSound(defaultSettings.sessionEndSound);
     setWeeklyGoal(defaultSettings.weeklyGoal);
     setDefaultCategory(defaultSettings.defaultCategory);
     setDefaultSessionEndRule(defaultSettings.defaultSessionEndRule);
@@ -143,21 +136,6 @@ export default function Settings() {
           />
           Enable Notifications
         </label>
-      </div>
-
-      <div className="bg-white dark:bg-[rgb(40,40,40)] rounded-xl p-4 shadow-md mb-6">
-        <h3 className="text-[clamp(1rem,2vw,2vh)] font-semibold mb-3 flex items-center gap-2">
-          <FaVolumeUp /> Session End Sound
-        </h3>
-        <select
-          value={sessionEndSound}
-          onChange={(e) => handleSettingChange(setSessionEndSound, e.target.value)}
-          className="w-full p-2 bg-white dark:bg-[rgb(50,50,50)] rounded-lg border-2 border-gray-300 dark:border-[rgb(50,50,50)] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#6B5B95] text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md"
-        >
-          <option value="beep">Beep</option>
-          <option value="chime">Chime</option>
-          <option value="none">None</option>
-        </select>
       </div>
 
       <div className="bg-white dark:bg-[rgb(40,40,40)] rounded-xl p-4 shadow-md mb-6">

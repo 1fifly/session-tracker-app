@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importSessions: () => ipcRenderer.invoke('import-sessions'),
   exportSessions: () => ipcRenderer.invoke('export-sessions'),
   playSessionEndSound: (sessionEndSound) => ipcRenderer.send('play-session-end-sound', sessionEndSound),
+  onUpdateStatus: (callback) => ipcRenderer.on('update-status', (event, status) => callback(status)),
 });
 
 contextBridge.exposeInMainWorld('process', {

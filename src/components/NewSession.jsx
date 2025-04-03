@@ -20,12 +20,10 @@ export default function NewSession() {
   const [notes, setNotes] = useState('');
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState('');
-  const [sessionEndSound, setSessionEndSound] = useState('default');
 
   useEffect(() => {
     window.electronAPI.loadSettings().then(settings => {
       setNotifications(settings.notifications);
-      setSessionEndSound(settings.sessionEndSound);
     });
   }, []);
 
@@ -85,14 +83,10 @@ export default function NewSession() {
     setSessionData(newSession);
     setShowEndConfirmation(true);
 
-
-    if (sessionEndRule === 'timer' && sessionEndSound !== 'none') {
-      const audio = new Audio('');
-      audio.play();
-    }
-
     if (notifications) {
-      new Notification('Session Ended', { body: `${title || 'Unnamed Session'} has ended.` });
+      new Notification('Session Ended', {
+        body: `${title || 'Unnamed Session'} has ended.`,
+      });
     }
   };
 
