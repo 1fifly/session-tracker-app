@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, Tray, nativeImage } = require('electron');
 const path = require('node:path');
 const fs = require('fs');
 const { saveSession, loadSessions, deleteSession, deleteAllSessions, saveSettings, loadSettings } = require('./database');
@@ -10,10 +10,33 @@ if (require('electron-squirrel-startup')) {
 let splashWindow;
 let mainWindow;
 
+const setupTray = () => {
+  const originalIcon = nativeImage.createFromPath(path.join(__dirname, 'images', 'icon.png'));
+  tray = new Tray(originalIcon);
+
+  const resizedIcon = nativeImage.createFromPath(path.join(__dirname, 'images', 'icon_no_bg.png')).resize({ width: 16, height: 16 });
+  const contextMenu = Menu.buildFromTemplate([
+    { icon: resizedIcon, label: app.name },
+    { type: 'separator' },
+    { label: 'Start Session', click: () => { app.isQuitting = true; app.quit(); } },
+    { label: 'End Session', click: () => { app.isQuitting = true; app.quit(); } },
+    { type: 'separator' },
+    { label: 'Quit', click: () => { app.isQuitting = true; app.quit(); } },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+  tray.setTitle(app.name);
+  tray.setToolTip(app.name);
+
+  tray.on('click', () => {
+    mainWindow.show();
+  });
+};
+
 const createSplashWindow = () => {
   splashWindow = new BrowserWindow({
-    width: 400,
-    height: 600,
+    width: 267,
+    height: 400,
     frame: false,
     alwaysOnTop: true,
     transparent: true,
@@ -35,9 +58,9 @@ const createSplashWindow = () => {
 const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: 950,
-    height: 550,
+    height: 600,
     minWidth: 950,
-    minHeight: 550,
+    minHeight: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -50,6 +73,13 @@ const createMainWindow = () => {
   Menu.setApplicationMenu(null);
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide(); 
+    }
+  });
 
   mainWindow.once('ready-to-show', () => {
     if (splashWindow) {
@@ -66,19 +96,9 @@ const createMainWindow = () => {
       mainWindow.maximize();
     }
   });
-  ipcMain.on('close-window', () => mainWindow.close());
+  ipcMain.on('close-window', () => mainWindow.hide());
   
-  // fix tray
-  let tray = new Tray('./src/images/icon_no_bg.png');
-
-  const contextMenu = Menu.buildFromTemplate([
-    // check for updates
-    // end session
-    { label: 'Quit', type: 'normal', click: () => app.quit() },
-  ]);
-  
-  tray.setContextMenu(contextMenu)
-  tray.setTitle('Session Tracker')
+  setupTray();
 };
 
 const checkForUpdatesFake = () => {

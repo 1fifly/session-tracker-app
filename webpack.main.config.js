@@ -11,6 +11,7 @@ module.exports = {
       patterns: [
         { from: 'src/splash.html', to: 'splash.html' },
         { from: 'src/images/icon.png', to: 'images/icon.png' },
+        { from: 'src/images/icon_no_bg.png', to: 'images/icon_no_bg.png' },
       ],
     }),
   ],

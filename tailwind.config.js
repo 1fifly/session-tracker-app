@@ -8,7 +8,7 @@ module.exports = {
         sans: ['Segoe UI', 'SF Pro Text', 'Ubuntu', 'Arial', 'sans-serif'],
       },
       screens: {
-        'lg-h': { 'raw': '(max-height: 1024px)' },
+        'lg-h': { 'raw': '(min-height: 1280px)' },
       },
     },
   },

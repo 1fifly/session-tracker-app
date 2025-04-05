@@ -6,13 +6,13 @@
   <title>Session Tracker</title>
   <style>
     body {
-      margin: 0;
+      margin: auto;
       padding: 0;
       overflow: hidden;
       user-select: none;
       background: none;
-      height: 600px;
-      width: 400px;
+      height: 400px;
+      width: 267px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -20,17 +20,17 @@
     }
 
     .container {
-      width: 400px;
-      height: 500px;
+      width: 267px;
+      height: 333px;
       background: rgb(40, 40, 40);
-      border: 2px solid rgb(50, 50, 50);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgb(50, 50, 50);
+      border-radius: 16px;
+      box-shadow: 0 5px 21px rgba(0, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 48px;
+      gap: 32px;
       position: relative;
       overflow: hidden;
     }
@@ -42,31 +42,31 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at 50% 20%, rgba(107, 91, 149, 0.15), transparent 60%);
+      background: radial-gradient(circle at 50% 20%, rgba(61, 59, 68, 0.15), transparent 60%);
       z-index: 0;
       pointer-events: none;
     }
 
     .logo {
-      width: 200px;
-      height: 200px;
+      width: 133px;
+      height: 133px;
       z-index: 1;
       animation: float 3s ease-in-out infinite;
-      margin-bottom: -44px;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      margin-bottom: -29px;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
     }
 
     .title {
       color: #ffffff;
-      font-size: 36px;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       text-transform: uppercase;
       text-align: center;
       z-index: 1;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
       position: relative;
-      margin-bottom: -20px;
+      margin-bottom: -13px;
     }
 
     .title::after {
@@ -74,35 +74,31 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      bottom: -12px;
-      width: 64px;
-      height: 3px;
+      bottom: -8px;
+      width: 43px;
+      height: 2px;
       background: #6B5B95;
     }
 
     .status-text {
       color: #a0a5b0;
-      font-size: 24px;
+      font-size: 16px;
       font-weight: 500;
       z-index: 1;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
 
     .dots::after {
       content: '...';
       display: inline-block;
-      width: 30px;
+      width: 20px;
       text-align: left;
       animation: dots 1.5s steps(4, end) infinite;
     }
 
     @keyframes float {
-      0%, 100% {
-        transform: translateY(-15px);
-      }
-      50% {
-        transform: translateY(5px);
-      }
+      0%, 100% { transform: translateY(-10px); }
+      50% { transform: translateY(3px); }
     }
 
     @keyframes dots {
@@ -116,7 +112,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="./images/icon_no_bg.png" alt="Session Tracker Logo" class="logo">
+        <img src='./images/icon_no_bg.png' alt="Session Tracker Logo" class="logo">
         <h1 class="title">Session Tracker</h1>
         <span id="status-text" class="status-text">
         <span id="text-content">Initializing</span><span class="dots"></span>

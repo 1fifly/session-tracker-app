@@ -106,7 +106,7 @@ export default function Dashboard() {
       )}
       <div className="flex h-full w-full gap-x-4">
         <div className="flex w-1/2 flex-col items-start justify-center gap-y-2 h-full">
-          <h2 className="text-[clamp(1.25rem,3vw,3vh)] font-bold tracking-wide uppercase relative pb-2 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-[2px] after:bg-[#6B5B95] ml-[10%]">
+          <h2 className="text-[clamp(1.25rem,3vw,3vh)] font-bold tracking-wide uppercase relative pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-[2px] after:bg-[#6B5B95] ml-[10%]">
             Recent Sessions
           </h2>
           {recentSlots.map((session) => (
@@ -129,11 +129,11 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="flex w-1/2 flex-col items-start justify-center gap-y-0 h-full">
-          <h2 className="text-[clamp(1.25rem,3vw,3vh)] font-bold tracking-wide uppercase relative pb-2 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-[2px] after:bg-[#6B5B95] ml-[10%]">
+        <div className="flex w-1/2 flex-col items-start justify-center gap-y-2 h-full">
+          <h2 className="text-[clamp(1.25rem,3vw,3vh)] font-bold tracking-wide uppercase relative pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-[2px] after:bg-[#6B5B95] ml-[10%]">
             Analytics
           </h2>
-          <div className="grid w-full grid-cols-2 gap-2 px-[10%] grid-rows-[repeat(4,1fr)]">
+          <div className="grid w-full grid-cols-2 gap-2 px-[10%] grid-rows-[repeat(4,1fr)] mb-1">
             <AnalyticsItem text="Total Time" info={analytics.totalTime} icon="FaClock" />
             <AnalyticsItem text="Sessions Count" info={analytics.sessionCount} icon="FaList" />
             <AnalyticsItem text="Average Duration" info={analytics.avgDuration} icon="FaHourglassHalf" />

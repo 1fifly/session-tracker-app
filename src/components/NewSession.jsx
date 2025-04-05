@@ -141,7 +141,7 @@ export default function NewSession() {
     const value = parseInt(e.target.value) || 0;
     setTimeLimit({
       ...timeLimit,
-      [field]: field === 'hours' ? Math.max(23, value) : Math.max(0, Math.min(59, value))
+      [field]: field === 'hours' ? Math.max(0, value) : Math.max(0, Math.min(59, value))
     });
   };
 
@@ -353,6 +353,7 @@ export default function NewSession() {
                 onChange={handleTimeLimitChange('hours')}
                 className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
                 min="0"
+                max="23"
               />
               <span className="absolute left-1/2 -translate-x-1/2 bottom-1 text-xs text-gray-500">HR</span>
             </div>
