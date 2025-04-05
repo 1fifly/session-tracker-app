@@ -1,4 +1,3 @@
-// webpack.main.config.js
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
@@ -11,7 +10,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'src/splash.html', to: 'splash.html' },
-        { from: 'src/images/logo.png', to: 'images/logo.png' },
+        { from: 'src/images/icon.png', to: 'images/icon.png' },
       ],
     }),
   ],

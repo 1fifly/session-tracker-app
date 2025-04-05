@@ -6,14 +6,13 @@ const isPackaging = process.argv.includes('package') || process.argv.includes('m
 module.exports = {
   packagerConfig: {
     asar: true,
-    icon: './src/images/logo',
+    icon: './src/images/icon',
     asarUnpack: ['**/better-sqlite3/**'],
   },
   makers: [
     { name: '@electron-forge/maker-squirrel', config: {
-      iconUrl: 'https://raw.githubusercontent.com/1fifly/session-tracker-app/refs/heads/main/src/images/logo.ico?token=GHSAT0AAAAAADBPHPIEWMH3Y4TJPGPCNACAZ7NXEPQ',
-      setupIcon: './src/images/logo.ico',
-      name: 'Session Tracker',
+      iconUrl: 'https://raw.githubusercontent.com/1fifly/session-tracker-app/refs/heads/main/src/images/icon.ico?token=GHSAT0AAAAAADBPHPIEWMH3Y4TJPGPCNACAZ7NXEPQ',
+      setupIcon: './src/images/icon.ico',
     } },
     { name: '@electron-forge/maker-zip', platforms: ['darwin'] },
     { name: '@electron-forge/maker-deb', config: {} },

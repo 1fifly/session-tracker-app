@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, Tray } = require('electron');
 const path = require('node:path');
 const fs = require('fs');
 const { saveSession, loadSessions, deleteSession, deleteAllSessions, saveSettings, loadSettings } = require('./database');
@@ -22,7 +22,7 @@ const createSplashWindow = () => {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    icon: './src/images/logo.png',
+    icon: './src/images/icon.png',
   });
 
   splashWindow.loadFile(path.join(__dirname, 'splash.html'));
@@ -43,7 +43,7 @@ const createMainWindow = () => {
     },
     frame: false,
     autoHideMenuBar: true,
-    icon: './src/images/logo.png',
+    icon: './src/images/icon.png',
     show: false,
   });
 
@@ -67,6 +67,18 @@ const createMainWindow = () => {
     }
   });
   ipcMain.on('close-window', () => mainWindow.close());
+  
+  // fix tray
+  let tray = new Tray('./src/images/icon_no_bg.png');
+
+  const contextMenu = Menu.buildFromTemplate([
+    // check for updates
+    // end session
+    { label: 'Quit', type: 'normal', click: () => app.quit() },
+  ]);
+  
+  tray.setContextMenu(contextMenu)
+  tray.setTitle('Session Tracker')
 };
 
 const checkForUpdatesFake = () => {
