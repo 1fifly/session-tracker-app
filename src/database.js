@@ -33,18 +33,16 @@ db.prepare('INSERT OR IGNORE INTO settings (id) VALUES (1)').run();
 
 function saveSession(sessionData) {
   const { 
+    id,
     title, 
     description, 
     notes, 
     category, 
     tags, 
     length, 
-    todos 
+    todos,
+    timestamp 
   } = sessionData || {}; 
-  
-  const timestamp = sessionData?.timestamp 
-    ? new Date(sessionData.timestamp).toISOString().split('T')[0] 
-    : new Date().toISOString().split('T')[0];
 
   const toSqliteValue = (value) => {
     if (value === null || value === undefined) return null;
@@ -64,14 +62,49 @@ function saveSession(sessionData) {
   const safeTags = toSqliteValue(tags);
   const safeLength = toSqliteValue(length);
   const safeTodos = toSqliteValue(todos);
-  const safeTimestamp = toSqliteValue(timestamp);
+  const safeTimestamp = toSqliteValue(
+    timestamp && typeof timestamp === 'string' && timestamp.match(/^\d{4}-\d{2}-\d{2}/)
+      ? timestamp
+      : new Date().toISOString().split('T')[0]
+  );
+
+  if (id) {
+    const existing = db.prepare('SELECT id FROM sessions WHERE id = ?').get(id);
+    if (existing) {
+      const stmt = db.prepare(`
+        UPDATE sessions SET 
+          title = ?, 
+          description = ?, 
+          notes = ?, 
+          category = ?, 
+          tags = ?, 
+          length = ?, 
+          todos = ?, 
+          timestamp = ?
+        WHERE id = ?
+      `);
+      stmt.run(
+        safeTitle,
+        safeDescription,
+        safeNotes,
+        safeCategory,
+        safeTags,
+        safeLength,
+        safeTodos,
+        safeTimestamp,
+        id
+      );
+      console.log('Updated session ID:', id);
+      return id;
+    }
+  }
 
   const stmt = db.prepare(`
-    INSERT INTO sessions (title, description, notes, category, tags, length, todos, timestamp)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO sessions (id, title, description, notes, category, tags, length, todos, timestamp)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
-
   const info = stmt.run(
+    id && Number.isInteger(id) && id > 0 ? id : null, 
     safeTitle,
     safeDescription,
     safeNotes,
@@ -81,17 +114,31 @@ function saveSession(sessionData) {
     safeTodos,
     safeTimestamp
   );
-  return info.lastInsertRowid;
+  const insertedId = id && Number.isInteger(id) && id > 0 ? id : info.lastInsertRowid;
+  console.log('Inserted session ID:', insertedId);
+  return insertedId;
 }
 
 function loadSessions() {
   const stmt = db.prepare('SELECT * FROM sessions');
   const rows = stmt.all();
-  return rows.map(row => ({
-    ...row,
-    tags: row.tags ? JSON.parse(row.tags) : null,
-    todos: row.todos ? JSON.parse(row.todos) : null
-  }));
+  return rows.map(row => {
+    let parsedTodos = [];
+    if (row.todos) {
+      try {
+        parsedTodos = JSON.parse(row.todos);
+      } catch (e) {
+        console.error('Failed to parse todos:', row.todos, e);
+        parsedTodos = [];
+      }
+    }
+
+    return {
+      ...row,
+      tags: row.tags || '',
+      todos: parsedTodos
+    };
+  });
 }
 
 function deleteSession(id) {

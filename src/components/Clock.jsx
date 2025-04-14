@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-export default function Clock({ isRunning }) {
+export default function Clock({ isRunning, startTime }) {
   const [radius, setRadius] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-
-  useEffect(() => {
-    if (!isRunning) return;
-    setSeconds(0);
-    const interval = setInterval(() => setSeconds((prev) => prev + 1), 1000);
-    return () => clearInterval(interval);
-  }, [isRunning]);
+  const [elapsedTime, setElapsedTime] = useState(startTime ? Date.now() - startTime : 0);
 
   useEffect(() => {
     const updateRadius = () => {
@@ -21,6 +14,20 @@ export default function Clock({ isRunning }) {
     return () => window.removeEventListener('resize', updateRadius);
   }, []);
 
+  useEffect(() => {
+    let interval;
+    if (isRunning && startTime) {
+      setElapsedTime(Date.now() - startTime);
+      interval = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, startTime]);
+
+  const seconds = Math.floor(elapsedTime / 1000);
   const hours = Math.floor(seconds / 3600) % 12;
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;

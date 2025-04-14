@@ -128,11 +128,11 @@ export default function Settings() {
           <FaBell /> Notifications
         </h3>
         <label className="flex items-center gap-2 text-[clamp(0.9rem,1.5vw,1.5vh)]">
-          <input
+        <input
             type="checkbox"
             checked={notifications}
             onChange={(e) => handleSettingChange(setNotifications, e.target.checked)}
-            className="w-5 h-5 rounded-md border-gray-300 dark:border-[rgb(50,50,50)] focus:ring-[#6B5B95]"
+            className="w-5 h-5 rounded-md border-gray-300 dark:border-[rgb(50,50,50)] focus:ring-[#6B5B95] checked:bg-[#6B5B95] hover:checked:bg-[#5A4A82] accent-[#6B5B95]"
           />
           Enable Notifications
         </label>
@@ -168,15 +168,21 @@ export default function Settings() {
         <h3 className="text-[clamp(1rem,2vw,2vh)] font-semibold mb-3 flex items-center gap-2">
           <FaCheckSquare /> Default Session End Rule
         </h3>
-        <select
-          value={defaultSessionEndRule}
-          onChange={(e) => handleSettingChange(setDefaultSessionEndRule, e.target.value)}
-          className="w-full p-2 bg-white dark:bg-[rgb(50,50,50)] rounded-lg border-2 border-gray-300 dark:border-[rgb(50,50,50)] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#6B5B95] text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md"
-        >
-          <option value="manual">Manual</option>
-          <option value="timer">Timer</option>
-          <option value="todo">To-Do</option>
-        </select>
+        <div className="flex gap-2">
+          {['manual', 'timer', 'todo'].map(range => (
+            <button
+              key={range}
+              onClick={() => handleSettingChange(setDefaultSessionEndRule, range)}
+              className={`px-[2%] py-2 rounded-lg text-[clamp(0.9rem,1.5vw,1.5vh)] font-medium shadow-md transition-all duration-300 hover:scale-105 ${
+                defaultSessionEndRule === range 
+                  ? 'bg-[#6B5B95] text-white' 
+                  : 'bg-white dark:bg-[rgb(40,40,40)] text-gray-600 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-[rgb(50,50,50)]'
+              }`}
+            >
+              {range.charAt(0).toUpperCase() + range.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="bg-white dark:bg-[rgb(40,40,40)] rounded-xl p-4 shadow-md">

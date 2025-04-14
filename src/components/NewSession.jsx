@@ -14,7 +14,6 @@ export default function NewSession() {
   const [draggedTodo, setDraggedTodo] = useState(null);
   const [showEndConfirmation, setShowEndConfirmation] = useState(false);
   const [sessionData, setSessionData] = useState(null);
-  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
@@ -22,17 +21,65 @@ export default function NewSession() {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
-    window.electronAPI.loadSettings().then(settings => {
-      setNotifications(settings.notifications);
+    window.electronAPI?.loadSettings().then(settings => {
+      setNotifications(settings.notifications ?? true);
     });
+    const pendingConfirmation = localStorage.getItem('pendingConfirmation');
+    if (pendingConfirmation) {
+      const parsedSession = JSON.parse(pendingConfirmation);
+      setSessionData(parsedSession);
+      setShowEndConfirmation(true);
+      localStorage.removeItem('pendingConfirmation');
+    } else {
+      const savedSession = localStorage.getItem('activeSession');
+      if (savedSession) {
+        const parsedSession = JSON.parse(savedSession);
+        setIsRunning(parsedSession.isRunning);
+        setStartTime(parsedSession.startTime);
+        setTodos(parsedSession.todos);
+        setSessionEndRule(parsedSession.sessionEndRule);
+        setTimeLimit(parsedSession.timeLimit);
+        setRemainingTime(parsedSession.remainingTime);
+        setTitle(parsedSession.title);
+        setDescription(parsedSession.description);
+        setNotes(parsedSession.notes);
+        setCategory(parsedSession.category);
+        setTags(parsedSession.tags);
+      } else {
+        window.electronAPI?.loadSettings().then(settings => {
+          setCategory(settings.defaultCategory ?? '');
+          setSessionEndRule(settings.defaultSessionEndRule ?? 'manual');
+        });
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    if (isRunning || startTime) {
+      const sessionState = {
+        isRunning,
+        startTime,
+        todos,
+        sessionEndRule,
+        timeLimit,
+        remainingTime,
+        title,
+        description,
+        notes,
+        category,
+        tags
+      };
+      localStorage.setItem('activeSession', JSON.stringify(sessionState));
+      window.dispatchEvent(new Event('sessionUpdated'));
+    }
+  }, [isRunning, startTime, todos, sessionEndRule, timeLimit, remainingTime, title, description, notes, category, tags]);
 
   useEffect(() => {
     let interval;
     if (isRunning && sessionEndRule === 'timer' && (timeLimit.hours > 0 || timeLimit.minutes > 0 || timeLimit.seconds > 0)) {
       const totalSeconds = (timeLimit.hours * 3600 + timeLimit.minutes * 60 + timeLimit.seconds) * 1000;
       setRemainingTime(totalSeconds);
-
+  
       interval = setInterval(() => {
         setRemainingTime(prev => {
           if (prev <= 1000) {
@@ -65,29 +112,41 @@ export default function NewSession() {
 
   const handleSessionEnd = () => {
     setIsRunning(false);
+    if (notifications && sessionEndRule === 'timer') {
+      console.log('Notification permission:', Notification.permission);
+      if (Notification.permission === 'granted') {
+        new Notification('Session Ended', { body: `${title || 'Unnamed Session'} has ended.` });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('Session Ended', { body: `${title || 'Unnamed Session'} has ended.` });
+          } else {
+            console.log('Notification permission denied');
+          }
+        });
+      } else {
+        console.log('Notifications are blocked');
+      }
+    }
     const todosString = JSON.stringify(todos);
     const elapsedTime = Date.now() - startTime;
     const length = formatTimeToHHMMSS(elapsedTime);
-
+  
     const newSession = {
       title,
       description,
       category: category.trim() === '' ? 'Uncategorized' : category,
-      tags,
+      tags: tags.trim(),
       notes,
       length,
       todos: todosString,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-
+  
     setSessionData(newSession);
     setShowEndConfirmation(true);
-
-    if (notifications) {
-      new Notification('Session Ended', {
-        body: `${title || 'Unnamed Session'} has ended.`,
-      });
-    }
+    localStorage.removeItem('activeSession');
+    window.dispatchEvent(new Event('sessionUpdated'));
   };
 
   const handleConfirmEnd = async (updatedSessionData) => {
@@ -102,6 +161,8 @@ export default function NewSession() {
       setNotes('');
       setCategory('');
       setTags('');
+      setRemainingTime(null);
+      localStorage.removeItem('activeSession');
     } catch (err) {
       console.error('Error saving session:', err);
     }
@@ -257,7 +318,7 @@ export default function NewSession() {
       </div>
 
       <div className="h-full w-2/4 flex justify-center items-center flex-col">
-        <Clock isRunning={isRunning} />
+        <Clock isRunning={isRunning} startTime={startTime} />
         {sessionEndRule === 'timer' && isRunning && remainingTime !== null && (
           <div className="text-gray-900 dark:text-white text-[clamp(1rem,2vw,2vh)] mt-4">
             Remaining: {formatRemainingTime()}
@@ -351,7 +412,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.hours}
                 onChange={handleTimeLimitChange('hours')}
-                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-md shadow-md transition-all duration-300"
                 min="0"
                 max="23"
               />
@@ -362,7 +423,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.minutes}
                 onChange={handleTimeLimitChange('minutes')}
-                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-md shadow-md transition-all duration-300"
                 min="0"
                 max="59"
               />
@@ -373,7 +434,7 @@ export default function NewSession() {
                 type="number"
                 value={timeLimit.seconds}
                 onChange={handleTimeLimitChange('seconds')}
-                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-[clamp(0.9rem,1.5vw,1.5vh)] shadow-md transition-all duration-300"
+                className="w-14 h-12 bg-white dark:bg-[rgb(40,40,40)] rounded-lg border-none outline-none focus:ring-2 focus:ring-[#6B5B95] text-gray-900 dark:text-white text-center text-md shadow-md transition-all duration-300"
                 min="0"
                 max="59"
               />

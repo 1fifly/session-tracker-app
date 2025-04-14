@@ -9,19 +9,43 @@ if (require('electron-squirrel-startup')) {
 
 let splashWindow;
 let mainWindow;
+let tray;
+
+const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
+
+function loadWindowState() {
+  try {
+    if (fs.existsSync(windowStatePath)) {
+      const data = fs.readFileSync(windowStatePath, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error('Failed to load window state:', err);
+  }
+  return { width: 950, height: 600 };
+}
+
+function saveWindowState(window) {
+  if (!window) return;
+  try {
+    const bounds = window.getBounds();
+    fs.writeFileSync(windowStatePath, JSON.stringify(bounds));
+  } catch (err) {
+    console.error('Failed to save window state:', err);
+  }
+}
 
 const setupTray = () => {
-  const originalIcon = nativeImage.createFromPath(path.join(__dirname, 'images', 'icon.png'));
+  const originalIcon = nativeImage.createFromPath(path.join(__dirname, 'images', 'icon_no_bg.png'));
   tray = new Tray(originalIcon);
 
   const resizedIcon = nativeImage.createFromPath(path.join(__dirname, 'images', 'icon_no_bg.png')).resize({ width: 16, height: 16 });
   const contextMenu = Menu.buildFromTemplate([
-    { icon: resizedIcon, label: app.name },
+    { icon: resizedIcon, label: app.name, enabled: false },
     { type: 'separator' },
-    { label: 'Start Session', click: () => { app.isQuitting = true; app.quit(); } },
-    { label: 'End Session', click: () => { app.isQuitting = true; app.quit(); } },
+    { label: 'GitHub', click: async () => { const { shell } = require('electron'); await shell.openExternal('https://github.com/1fifly/session-tracker-app')} },
     { type: 'separator' },
-    { label: 'Quit', click: () => { app.isQuitting = true; app.quit(); } },
+    { label: 'Quit', click: () => { app.isQuitting = true; app.quit(); saveWindowState(mainWindow); } },
   ]);
 
   tray.setContextMenu(contextMenu);
@@ -56,9 +80,10 @@ const createSplashWindow = () => {
 };
 
 const createMainWindow = () => {
+  const windowState = loadWindowState();
+
   mainWindow = new BrowserWindow({
-    width: 950,
-    height: 600,
+    ...windowState,
     minWidth: 950,
     minHeight: 600,
     webPreferences: {
@@ -125,8 +150,8 @@ const checkForUpdatesFake = () => {
 //   const { autoUpdater } = require('electron-updater');
 //   autoUpdater.setFeedURL({
 //     provider: 'github',
-//     owner: 'YOUR_GITHUB_USERNAME',
-//     repo: 'YOUR_REPOSITORY_NAME',
+//     owner: 'fifly1',
+//     repo: 'session-tracker-app',
 //   });
 
 //   return new Promise((resolve, reject) => {
@@ -137,12 +162,12 @@ const checkForUpdatesFake = () => {
 //       splashWindow.webContents.send('update-status', 'Updating');
 //     });
 //     autoUpdater.on('update-downloaded', () => {
-//       splashWindow.webContents.send('update-status', 'Starting Session Tracker');
+//       splashWindow.webContents.send('update-status', 'Starting');
 //       autoUpdater.quitAndInstall();
 //       resolve();
 //     });
 //     autoUpdater.on('update-not-available', () => {
-//       splashWindow.webContents.send('update-status', 'Starting Session Tracker');
+//       splashWindow.webContents.send('update-status', 'Starting');
 //       setTimeout(resolve, 1000);
 //     });
 //     autoUpdater.on('error', (err) => {
@@ -158,8 +183,6 @@ app.whenReady().then(async () => {
 
   try {
     await checkForUpdatesFake();
-    // await checkForUpdatesGitHub();
-
     createMainWindow();
   } catch (error) {
     console.error('Update check failed:', error);
@@ -246,13 +269,49 @@ ipcMain.handle('import-sessions', async () => {
       properties: ['openFile'],
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
-    if (canceled || !filePaths.length) return { success: false };
-    const data = JSON.parse(fs.readFileSync(filePaths[0], 'utf-8'));
+    if (canceled || !filePaths.length) return { success: false, error: 'No file selected' };
+    
+    let data;
+    try {
+      data = JSON.parse(fs.readFileSync(filePaths[0], 'utf-8'));
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', parseError);
+      return { success: false, error: 'Invalid JSON file' };
+    }
+
+    if (!Array.isArray(data)) {
+      console.error('Imported data is not an array:', data);
+      return { success: false, error: 'File must contain an array of sessions' };
+    }
+
+    for (const session of data) {
+      if (typeof session !== 'object' || session === null) {
+        console.error('Invalid session object:', session);
+        return { success: false, error: 'Invalid session data' };
+      }
+      if (!session.title) {
+        console.warn('Session missing title, setting default:', session);
+        session.title = session.title || 'Untitled';
+      }
+      if (session.todos && !Array.isArray(session.todos)) {
+        console.warn('Invalid todos format, resetting:', session.todos);
+        session.todos = [];
+      }
+      if (session.timestamp && !session.timestamp.match(/^\d{4}-\d{2}-\d{2}/)) {
+        console.warn('Invalid timestamp, resetting:', session.timestamp);
+        session.timestamp = new Date().toISOString().split('T')[0];
+      }
+    }
+
+    console.log('Importing sessions:', data);
     data.forEach(session => saveSession(session));
-    return { success: true };
+    
+    const sessions = loadSessions();
+    console.log('Sessions after import:', sessions);
+    return { success: true, sessions };
   } catch (error) {
     console.error('Error importing sessions:', error);
-    return { success: false };
+    return { success: false, error: error.message };
   }
 });
 
