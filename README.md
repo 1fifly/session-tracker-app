@@ -31,6 +31,10 @@ Get the latest version from the [Releases page](https://github.com/1fifly/sessio
    npm start
    ```
 
+![image](https://github.com/user-attachments/assets/92fcd30f-f51a-4c3d-a5ef-2fd8b4c4f4ec)
+![image](https://github.com/user-attachments/assets/6c14cd12-b8d7-4484-b6ee-2e515f8070f7)
+
+
 ## Tech Stack
 - **UI**: React, React Router, Tailwind CSS
 - **Desktop Runtime**: Electron
