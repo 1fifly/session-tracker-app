@@ -140,6 +140,7 @@ const checkForUpdatesGitHub = () => {
      });
      autoUpdater.on('update-available', () => {
        splashWindow.webContents.send('update-status', 'Updating');
+       autoUpdater.quitAndInstall(true, true);
      });
      autoUpdater.on('update-downloaded', () => {
        splashWindow.webContents.send('update-status', 'Starting');
