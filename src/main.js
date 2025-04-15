@@ -126,63 +126,43 @@ const createMainWindow = () => {
   setupTray();
 };
 
-const checkForUpdatesFake = () => {
-  return new Promise((resolve) => {
-    splashWindow.webContents.send('update-status', 'Checking for updates');
-    setTimeout(() => {
-      const needsUpdate = Math.random() > 0.5;
-      if (needsUpdate) {
-        splashWindow.webContents.send('update-status', 'Updating');
-        setTimeout(() => {
-          splashWindow.webContents.send('update-status', 'Starting');
-          resolve();
-        }, 2000);
-      } else {
-        splashWindow.webContents.send('update-status', 'Starting');
-        setTimeout(resolve, 1000);
-      }
-    }, 1500);
-  });
+const checkForUpdatesGitHub = () => {
+   const { autoUpdater } = require('electron-updater');
+   autoUpdater.setFeedURL({
+     provider: 'github',
+     owner: '1fifly',
+     repo: 'session-tracker-app',
+   });
+
+   return new Promise((resolve, reject) => {
+     autoUpdater.on('checking-for-update', () => {
+       splashWindow.webContents.send('update-status', 'Checking for updates');
+     });
+     autoUpdater.on('update-available', () => {
+       splashWindow.webContents.send('update-status', 'Updating');
+     });
+     autoUpdater.on('update-downloaded', () => {
+       splashWindow.webContents.send('update-status', 'Starting');
+       autoUpdater.quitAndInstall();
+       resolve();
+     });
+     autoUpdater.on('update-not-available', () => {
+       splashWindow.webContents.send('update-status', 'Starting');
+       setTimeout(resolve, 1000);
+     });
+     autoUpdater.on('error', (err) => {
+       splashWindow.webContents.send('update-status', `Error: ${err.message}`);
+       setTimeout(reject, 2000);
+     });
+     autoUpdater.checkForUpdates();
+   });
 };
-
-// // GitHub-based update check (commented out for now)
-// const checkForUpdatesGitHub = () => {
-//   const { autoUpdater } = require('electron-updater');
-//   autoUpdater.setFeedURL({
-//     provider: 'github',
-//     owner: 'fifly1',
-//     repo: 'session-tracker-app',
-//   });
-
-//   return new Promise((resolve, reject) => {
-//     autoUpdater.on('checking-for-update', () => {
-//       splashWindow.webContents.send('update-status', 'Checking for updates');
-//     });
-//     autoUpdater.on('update-available', () => {
-//       splashWindow.webContents.send('update-status', 'Updating');
-//     });
-//     autoUpdater.on('update-downloaded', () => {
-//       splashWindow.webContents.send('update-status', 'Starting');
-//       autoUpdater.quitAndInstall();
-//       resolve();
-//     });
-//     autoUpdater.on('update-not-available', () => {
-//       splashWindow.webContents.send('update-status', 'Starting');
-//       setTimeout(resolve, 1000);
-//     });
-//     autoUpdater.on('error', (err) => {
-//       splashWindow.webContents.send('update-status', `Error: ${err.message}`);
-//       setTimeout(reject, 2000);
-//     });
-//     autoUpdater.checkForUpdates();
-//   });
-// };
 
 app.whenReady().then(async () => {
   createSplashWindow();
 
   try {
-    await checkForUpdatesFake();
+    await checkForUpdatesGitHub();
     createMainWindow();
   } catch (error) {
     console.error('Update check failed:', error);
