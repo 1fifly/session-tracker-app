@@ -13,7 +13,10 @@ A minimalistic app to track and manage your work, study, or exercise sessions wi
 - **Import/Export**: Back up or restore session data.
 - **Responsive UI**: Dark/light mode with a clean, intuitive design.
 
-## Installation
+## Download
+Get the latest version from the [Releases page](https://github.com/1fifly/session-tracker-app/releases).
+
+## Manual Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/session-tracker.git
