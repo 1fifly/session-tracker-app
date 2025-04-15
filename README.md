@@ -19,11 +19,11 @@ Get the latest version from the [Releases page](https://github.com/1fifly/sessio
 ## Manual Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/session-tracker.git
+   git clone https://github.com/1fifly/session-tracker-app.git
    ```
 2. Install dependencies:
    ```bash
-   cd session-tracker
+   cd session-tracker-app
    npm install
    ```
 3. Run the app:
