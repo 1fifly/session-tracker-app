@@ -52,6 +52,3 @@ Get the latest version from the [Releases page](https://github.com/1fifly/sessio
 
 ## Contributing
 Contributions are welcome! Please open an issue or submit a pull request.
-
-## License
-GPL-3.0
